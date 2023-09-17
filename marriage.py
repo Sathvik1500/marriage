@@ -18,14 +18,15 @@
 from collections import deque
 
 class Marriage:
-    lukePath = []
-    lorelaiPath = []
-    combinedStart = ()
-    combinedEnd = ()
-    combinedRooms = {}
-    combinedPath = []
+
 
     def __init__(self):
+        self.lukePath = []
+        self.lorelaiPath = []
+        self.combinedStart = ()
+        self.combinedEnd = ()
+        self.combinedRooms = {}
+        self.combinedPath = []
         return
 
     def getLukePath(self):
@@ -62,11 +63,16 @@ class Marriage:
             for neighbors in lines:
                 graph[i].append(int(neighbors))
         #create combined nodes
+        visitedCombinedRooms = set()
         # checks if second room is not the same nor adjacent to the first room, if not, create combined node
+        # also makes sure duplicates aren't added
         for firstRoom in graph:
             for secondRoom in graph:
                 if secondRoom not in graph[firstRoom]:
-                    self.combinedRooms[(firstRoom, secondRoom)] = []
+                    combinedRoom = (firstRoom,secondRoom)
+                    if combinedRoom not in visitedCombinedRooms:
+                        visitedCombinedRooms.add(combinedRoom)
+                        self.combinedRooms[combinedRoom] = []
         #print(self.combinedRooms)
         #create combined graph
         for combinedRoom in self.combinedRooms:
@@ -78,14 +84,11 @@ class Marriage:
         #BFS
         # queue starts at startRoom and initalizes queue with startRoom
         toVisit = deque([(startRoom, [startRoom])])
-        seen = set()
         while toVisit:
             current, tempPath = toVisit.popleft()
             if current == endRoom:
                 self.combinedPath = tempPath
                 return len(tempPath)
-            if current not in seen:
-                seen.add(current)
             neighbors = self.combinedRooms.get(current, [])
             for neighbor in neighbors:
                 if neighbor != current:
